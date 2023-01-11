@@ -1,6 +1,11 @@
 WIDTH = 19
 HEIGHT = 19
 
+FLIP_NONE = 0
+FLIP_H = 1
+FLIP_V = 2
+FLIP_V_AND_H = 3
+
 grid = list()
 
 
@@ -160,6 +165,9 @@ def fits(curve, x_start, y_start):
     for point in curve:
         x = point[0] + x_start
         y = point[1] + y_start
+        #print(f"{x}-{y}")
+        if x >= WIDTH or y >= HEIGHT:
+            return False
         if grid[x][y] != ".":
             return False
     return True
@@ -183,7 +191,7 @@ def flip_h(curve):
     result = list()
     width = curve[len(curve) - 1][0]
     for point in curve:
-        result.append([width - point[0], point[1]])
+        result.append([width - 1 - point[0], point[1]])
     return result
 
 
@@ -191,7 +199,7 @@ def flip_v(curve):
     result = list()
     height = curve[len(curve) - 1][1]
     for point in curve:
-        result.append([point[0], height - point[1]])
+        result.append([point[0], height - 1 - point[1]])
     return result
 
 
@@ -200,9 +208,18 @@ def flip_v_and_h(curve):
     width = curve[len(curve) - 1][0]
     height = curve[len(curve) - 1][1]
     for point in curve:
-        result.append([width - point[0], height - point[1]])
+        result.append([width - 1 - point[0], height - 1 - point[1]])
     return result
 
+def flip(curve, flip_type):
+    if flip_type == FLIP_V:
+        return flip_v(curve)
+    if flip_type == FLIP_H:
+        return flip_h(curve)
+    if flip_type == FLIP_V_AND_H:
+        return flip_v_and_h(curve)
+    # no flip
+    return curve 
 
 def get_possible_starts(curve):
     possible_starts = list()
@@ -223,19 +240,17 @@ def get_possible_starts(curve):
 def try_combination(curve_1, curve_2, curve_3, curve_4):
     first_curve_starts = get_possible_starts(curve_1)
     for start_1 in first_curve_starts:
-        # print(f"lvl1 : {start_1}")
         put(curve_1, start_1[0], start_1[1], "1")
         second_curve_starts = get_possible_starts(curve_2)
         for start_2 in second_curve_starts:
-            # print(f"lvl2 : {start_2}")
             put(curve_2, start_2[0], start_2[1], "2")
             third_curve_starts = get_possible_starts(curve_3)
             for start_3 in third_curve_starts:
-                # print(f"lvl3 : {start_3}")
                 put(curve_3, start_3[0], start_3[1], "3")
                 fourth_curve_starts = get_possible_starts(curve_4)
                 if len(fourth_curve_starts) > 0:
                     print("SUCCESS !!!")
+                    draw_grid()
                 # else:
                 # print("nope...")
                 delete(curve_3, start_3[0], start_3[1])
@@ -245,73 +260,36 @@ def try_combination(curve_1, curve_2, curve_3, curve_4):
 
 grid = init_grid()
 
-# put(yellow_curve, 2, 0, "y")
-# put(brown_curve, 1, 3, "b")
+nb_tries = 0 
 
 for a in range(len(curves)):
-    key_a = list(curves.keys())[a]
-    for b in range(len(curves)):
-        if b != a:
-            key_b = list(curves.keys())[b]
-            for c in range(len(curves)):
-                if c != a and c != b:
-                    key_c = list(curves.keys())[c]
-                    for d in range(len(curves)):
-                        if d != a and d != b and d != c:
-                            key_d = list(curves.keys())[d]
-                            # print(f"{key_a} {key_b} {key_c} {key_d} ")
-                            try_combination(
-                                curves.get(key_a),
-                                curves.get(key_b),
-                                curves.get(key_c),
-                                curves.get(key_d),
-                            )
+    key_a = list(curves.keys())[a]   
+    for flip_a in range(4):
+        curve_a = flip(curves.get(key_a), flip_a)
+        for b in range(len(curves)):
+            if b != a:
+                key_b = list(curves.keys())[b]
+                for flip_b in range(4):
+                    curve_b = flip(curves.get(key_b), flip_b)
+                    for c in range(len(curves)):
+                        if c != a and c != b:
+                            key_c = list(curves.keys())[c]
+                            for flip_c in range(4):
+                                curve_c = flip(curves.get(key_c), flip_c)
+                                for d in range(len(curves)):
+                                    if d != a and d != b and d != c:
+                                        key_d = list(curves.keys())[d]
+                                        for flip_d in range(4):
+                                            curve_d = flip(curves.get(key_d), flip_d)
+                                            # print(f"{key_a} {key_b} {key_c} {key_d} ")
+                                            try_combination(
+                                                curve_a,
+                                                curve_b,
+                                                curve_c,
+                                                curve_d,
+                                            )
+                                            nb_tries += 1
 
 
+print(nb_tries)
 # draw_grid()
-
-
-# cases :
-# base
-# flip_h
-# flip_v
-# flip_h + flip_v
-
-# 4 base
-# 4 flip_h
-# 4 flip_v
-# 4 flip_v_and_h
-
-# 3 base + 1 flip_h
-# 3 base + 1 flip_v
-# 3 base + 1 flip_v_and_h
-
-# 2 base + 2 flip_h
-# 2 base + 2 flip_v
-# 2 base + 2 flip_v_and_h
-
-# 2 base + 1 flip_v
-
-
-# from itertools import permutations, combinations
-
-# elements = ['a', 'b', 'c', 'd']
-# states = ['e1', 'e2', 'e3', 'e4']
-
-# # Génération de toutes les combinaisons d'éléments
-# combinations = list(combinations(elements, 4))
-
-# # Génération de toutes les combinaisons d'états
-# state_combinations = list(combinations(states, 4))
-
-# # Génération de toutes les permutations d'éléments
-# permutations = list(permutations(elements))
-
-# # Génération de toutes les permutations d'états
-# state_permutations = list(permutations(states))
-
-# # Génération de toutes les combinaisons d'éléments et d'états
-# combination_and_permutations = []
-# for c in combinations:
-#     for s in state_combinations:
-#         combination_and_permutations.append(list(zip(c,s)))
