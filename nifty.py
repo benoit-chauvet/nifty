@@ -162,10 +162,13 @@ def draw_grid():
 
 
 def fits(curve, x_start, y_start):
+    # print(x_start)
+    # print(y_start)
+    # print(curve)
     for point in curve:
         x = point[0] + x_start
         y = point[1] + y_start
-        #print(f"{x}-{y}")
+        # print(f"{x}-{y}")
         if x >= WIDTH or y >= HEIGHT:
             return False
         if grid[x][y] != ".":
@@ -191,7 +194,7 @@ def flip_h(curve):
     result = list()
     width = curve[len(curve) - 1][0]
     for point in curve:
-        result.append([width - 1 - point[0], point[1]])
+        result.append([width - point[0], point[1]])
     return result
 
 
@@ -199,7 +202,7 @@ def flip_v(curve):
     result = list()
     height = curve[len(curve) - 1][1]
     for point in curve:
-        result.append([point[0], height - 1 - point[1]])
+        result.append([point[0], height - point[1]])
     return result
 
 
@@ -208,8 +211,9 @@ def flip_v_and_h(curve):
     width = curve[len(curve) - 1][0]
     height = curve[len(curve) - 1][1]
     for point in curve:
-        result.append([width - 1 - point[0], height - 1 - point[1]])
+        result.append([width - point[0], height - point[1]])
     return result
+
 
 def flip(curve, flip_type):
     if flip_type == FLIP_V:
@@ -219,13 +223,26 @@ def flip(curve, flip_type):
     if flip_type == FLIP_V_AND_H:
         return flip_v_and_h(curve)
     # no flip
-    return curve 
+    return curve
+
+
+def get_width(curve):
+    begin = curve[0][0]
+    end = curve[len(curve) - 1][0]
+    return max(begin, end)
+
+
+def get_height(curve):
+    begin = curve[0][1]
+    end = curve[len(curve) - 1][1]
+    return max(begin, end)
+
 
 def get_possible_starts(curve):
     possible_starts = list()
 
-    curve_width = curve[len(curve) - 1][0]
-    curve_height = curve[len(curve) - 1][1]
+    curve_width = get_width(curve)  # curve[len(curve) - 1][0]
+    curve_height = get_height(curve)  # curve[len(curve) - 1][1]
 
     for i in range(WIDTH - curve_width):
         for j in range(HEIGHT - curve_height):
@@ -237,22 +254,23 @@ def get_possible_starts(curve):
     return possible_starts
 
 
-def try_combination(curve_1, curve_2, curve_3, curve_4):
+def try_combination(curve_1, curve_2, curve_3, curve_4, c1, c2, c3, c4):
     first_curve_starts = get_possible_starts(curve_1)
     for start_1 in first_curve_starts:
-        put(curve_1, start_1[0], start_1[1], "1")
+        put(curve_1, start_1[0], start_1[1], c1)
         second_curve_starts = get_possible_starts(curve_2)
         for start_2 in second_curve_starts:
-            put(curve_2, start_2[0], start_2[1], "2")
+            put(curve_2, start_2[0], start_2[1], c2)
             third_curve_starts = get_possible_starts(curve_3)
             for start_3 in third_curve_starts:
-                put(curve_3, start_3[0], start_3[1], "3")
+                put(curve_3, start_3[0], start_3[1], c3)
                 fourth_curve_starts = get_possible_starts(curve_4)
                 if len(fourth_curve_starts) > 0:
                     print("SUCCESS !!!")
                     draw_grid()
-                # else:
-                # print("nope...")
+                else:
+                    print("nope...")
+                    draw_grid()
                 delete(curve_3, start_3[0], start_3[1])
             delete(curve_2, start_2[0], start_2[1])
         delete(curve_1, start_1[0], start_1[1])
@@ -260,36 +278,77 @@ def try_combination(curve_1, curve_2, curve_3, curve_4):
 
 grid = init_grid()
 
-nb_tries = 0 
 
-for a in range(len(curves)):
-    key_a = list(curves.keys())[a]   
-    for flip_a in range(4):
-        curve_a = flip(curves.get(key_a), flip_a)
-        for b in range(len(curves)):
-            if b != a:
-                key_b = list(curves.keys())[b]
-                for flip_b in range(4):
-                    curve_b = flip(curves.get(key_b), flip_b)
-                    for c in range(len(curves)):
-                        if c != a and c != b:
-                            key_c = list(curves.keys())[c]
-                            for flip_c in range(4):
-                                curve_c = flip(curves.get(key_c), flip_c)
-                                for d in range(len(curves)):
-                                    if d != a and d != b and d != c:
-                                        key_d = list(curves.keys())[d]
-                                        for flip_d in range(4):
-                                            curve_d = flip(curves.get(key_d), flip_d)
-                                            # print(f"{key_a} {key_b} {key_c} {key_d} ")
-                                            try_combination(
-                                                curve_a,
-                                                curve_b,
-                                                curve_c,
-                                                curve_d,
-                                            )
-                                            nb_tries += 1
+def brute_force():
+    nb_tries = 0
+
+    for a in range(len(curves)):
+        key_a = list(curves.keys())[a]
+        for flip_a in range(4):
+            curve_a = flip(curves.get(key_a), flip_a)
+            for b in range(len(curves)):
+                if b != a:
+                    key_b = list(curves.keys())[b]
+                    for flip_b in range(4):
+                        curve_b = flip(curves.get(key_b), flip_b)
+                        for c in range(len(curves)):
+                            if c != a and c != b:
+                                key_c = list(curves.keys())[c]
+                                for flip_c in range(4):
+                                    curve_c = flip(curves.get(key_c), flip_c)
+                                    for d in range(len(curves)):
+                                        if d != a and d != b and d != c:
+                                            key_d = list(curves.keys())[d]
+                                            for flip_d in range(4):
+                                                curve_d = flip(
+                                                    curves.get(key_d), flip_d
+                                                )
+                                                print(
+                                                    f"{key_a} {key_b} {key_c} {key_d} "
+                                                )
+                                                try_combination(
+                                                    curve_a,
+                                                    curve_b,
+                                                    curve_c,
+                                                    curve_d,
+                                                    key_a[0],
+                                                    key_b[0],
+                                                    key_c[0],
+                                                    key_d[0],
+                                                )
+                                                nb_tries += 1
+
+    print(nb_tries)
 
 
-print(nb_tries)
+brute_force()
+
+
+# print(flip_h(striped_curve))
+# fits(flip_h(striped_curve), 4, 0)
+# print(get_width(flip_h(striped_curve)))
+# print(get_height(flip_h(striped_curve)))
+
+
+# print(red_curve)
+# print(flip_h(red_curve))
+# print(flip_v(red_curve))
+# print(flip_v_and_h(red_curve))
+# print("-------------------------------")
+# print(yellow_curve)
+# print(flip_h(yellow_curve))
+# print(flip_v(yellow_curve))
+# print(flip_v_and_h(yellow_curve))
+# print("-------------------------------")
+# print(striped_curve)
+# print(flip_h(striped_curve))
+# print(flip_v(striped_curve))
+# print(flip_v_and_h(striped_curve))
+# print("-------------------------------")
+# print(brown_curve)
+# print(flip_h(brown_curve))
+# print(flip_v(brown_curve))
+# print(flip_v_and_h(brown_curve))
+
+
 # draw_grid()
