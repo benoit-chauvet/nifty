@@ -268,15 +268,12 @@ def try_combination(curve_1, curve_2, curve_3, curve_4, c1, c2, c3, c4):
                 if len(fourth_curve_starts) > 0:
                     print("SUCCESS !!!")
                     draw_grid()
-                else:
-                    print("nope...")
-                    draw_grid()
+                # else:
+                #     print("nope...")
+                #     draw_grid()
                 delete(curve_3, start_3[0], start_3[1])
             delete(curve_2, start_2[0], start_2[1])
         delete(curve_1, start_1[0], start_1[1])
-
-
-grid = init_grid()
 
 
 def brute_force():
@@ -303,9 +300,9 @@ def brute_force():
                                                 curve_d = flip(
                                                     curves.get(key_d), flip_d
                                                 )
-                                                print(
-                                                    f"{key_a} {key_b} {key_c} {key_d} "
-                                                )
+                                                # print(
+                                                #     f"{key_a} {key_b} {key_c} {key_d} "
+                                                # )
                                                 try_combination(
                                                     curve_a,
                                                     curve_b,
@@ -321,8 +318,23 @@ def brute_force():
     print(nb_tries)
 
 
+grid = init_grid()
 brute_force()
 
+# put(striped_curve, 2, 2, "s")
+# draw_grid()
+# print("")
+# grid = init_grid()
+# put(flip_v_and_h(striped_curve), 2, 2, "s")
+# draw_grid()
+# print("")
+# grid = init_grid()
+# put(flip_v(striped_curve), 2, 2, "s")
+# draw_grid()
+# print("")
+# grid = init_grid()
+# put(flip_h(striped_curve), 2, 2, "s")
+# draw_grid()
 
 # print(flip_h(striped_curve))
 # fits(flip_h(striped_curve), 4, 0)
