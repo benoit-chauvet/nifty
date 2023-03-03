@@ -23,65 +23,65 @@ def init_grid():
 
 red_curve = [
     [0, 0],
-    [1, 0],
-    [2, 0],
-    [3, 0],
-    [3, 1],
-    [4, 1],
-    [5, 1],
-    [5, 2],
-    [5, 3],
-    [5, 4],
-    [6, 4],
-    [6, 5],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 3],
+    [1, 4],
+    [1, 5],
+    [2, 5],
+    [3, 5],
+    [4, 5],
+    [4, 6],
+    [5, 6],
     [6, 6],
-    [6, 7],
+    [7, 6],
     [7, 7],
-    [8, 7],
+    [7, 8],
     [8, 8],
-    [9, 8],
-    [10, 8],
-    [11, 8],
-    [11, 9],
-    [11, 10],
-    [12, 10],
-    [13, 10],
-    [14, 10],
-    [14, 11],
-    [14, 12],
-    [15, 12],
-    [16, 12],
+    [8, 9],
+    [8, 10],
+    [8, 11],
+    [9, 11],
+    [10, 11],
+    [10, 12],
+    [10, 13],
+    [10, 14],
+    [11, 14],
+    [12, 14],
+    [12, 15],
+    [12, 16],
 ]
 
 yellow_curve = [
     [0, 0],
-    [1, 0],
-    [2, 0],
-    [3, 0],
-    [4, 0],
-    [5, 0],
-    [5, 1],
-    [5, 2],
-    [5, 3],
-    [6, 3],
-    [7, 3],
-    [7, 4],
-    [8, 4],
-    [9, 4],
-    [9, 5],
-    [9, 6],
-    [9, 7],
-    [9, 8],
-    [10, 8],
-    [11, 8],
-    [12, 8],
-    [12, 9],
-    [12, 10],
-    [12, 11],
-    [13, 11],
-    [14, 11],
-    [15, 11],
-    [16, 11],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
+    [0, 5],
+    [1, 5],
+    [2, 5],
+    [3, 5],
+    [3, 6],
+    [3, 7],
+    [4, 7],
+    [4, 8],
+    [4, 9],
+    [5, 9],
+    [6, 9],
+    [7, 9],
+    [8, 9],
+    [8, 10],
+    [8, 11],
+    [8, 12],
+    [9, 12],
+    [10, 12],
+    [11, 12],
+    [11, 13],
+    [11, 14],
+    [11, 15],
+    [11, 16],
 ]
 
 brown_curve = [
@@ -190,19 +190,20 @@ def delete(curve, x_start, y_start):
         grid[x][y] = "."
 
 
-def flip_h(curve):
+def flip_v(curve):
     result = list()
     width = curve[len(curve) - 1][0]
-    for point in curve:
+    for point in reversed(curve):
         result.append([width - point[0], point[1]])
     return result
 
 
-def flip_v(curve):
+def flip_h(curve):
     result = list()
     height = curve[len(curve) - 1][1]
-    for point in curve:
+    for point in reversed(curve):
         result.append([point[0], height - point[1]])
+        # print([point[0], height - point[1]])
     return result
 
 
@@ -266,11 +267,10 @@ def try_combination(curve_1, curve_2, curve_3, curve_4, c1, c2, c3, c4):
                 put(curve_3, start_3[0], start_3[1], c3)
                 fourth_curve_starts = get_possible_starts(curve_4)
                 if len(fourth_curve_starts) > 0:
-                    print("SUCCESS !!!")
-                    draw_grid()
-                # else:
-                #     print("nope...")
-                #     draw_grid()
+                    for start_4 in fourth_curve_starts:
+                        put(curve_4, start_4[0], start_4[1], c4)
+                        print("SUCCESS !!!")
+                        draw_grid()
                 delete(curve_3, start_3[0], start_3[1])
             delete(curve_2, start_2[0], start_2[1])
         delete(curve_1, start_1[0], start_1[1])
@@ -321,46 +321,11 @@ def brute_force():
 grid = init_grid()
 brute_force()
 
-# put(striped_curve, 2, 2, "s")
-# draw_grid()
-# print("")
-# grid = init_grid()
-# put(flip_v_and_h(striped_curve), 2, 2, "s")
-# draw_grid()
-# print("")
-# grid = init_grid()
-# put(flip_v(striped_curve), 2, 2, "s")
-# draw_grid()
-# print("")
-# grid = init_grid()
-# put(flip_h(striped_curve), 2, 2, "s")
-# draw_grid()
 
-# print(flip_h(striped_curve))
-# fits(flip_h(striped_curve), 4, 0)
-# print(get_width(flip_h(striped_curve)))
-# print(get_height(flip_h(striped_curve)))
-
-
-# print(red_curve)
-# print(flip_h(red_curve))
-# print(flip_v(red_curve))
-# print(flip_v_and_h(red_curve))
-# print("-------------------------------")
-# print(yellow_curve)
-# print(flip_h(yellow_curve))
-# print(flip_v(yellow_curve))
-# print(flip_v_and_h(yellow_curve))
-# print("-------------------------------")
-# print(striped_curve)
-# print(flip_h(striped_curve))
-# print(flip_v(striped_curve))
-# print(flip_v_and_h(striped_curve))
-# print("-------------------------------")
-# print(brown_curve)
-# print(flip_h(brown_curve))
-# print(flip_v(brown_curve))
-# print(flip_v_and_h(brown_curve))
-
-
-# draw_grid()
+def test():
+    grid = init_grid()
+    put(flip_v_and_h(striped_curve), 0, 6, "s")
+    put(yellow_curve, 1, 0, "y")
+    put(red_curve, 5, 2, "r")
+    put(brown_curve, 3, 0, "b")
+    draw_grid()
