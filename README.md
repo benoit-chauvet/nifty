@@ -41,6 +41,7 @@ The available space is represented as a 2 dimensional
 array stored in the [grid.txt text file](grid.txt), as 
 follows:
 
+`
 .......############
 ........###########
 ........###########
@@ -60,6 +61,7 @@ follows:
 #########..........
 #########..........
 ##########.........
+`
 
 # = unavailable space
 . = available space
