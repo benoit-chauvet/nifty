@@ -6,9 +6,14 @@ FLIP_H = 1
 FLIP_V = 2
 FLIP_V_AND_H = 3
 
+nb_positioning_1 = 0
+nb_positioning_2 = 0
+nb_positioning_3 = 0
+nb_positioning_4 = 0
+
 grid = list()
 
-
+# load the empty grid (available puzzle area)
 def init_grid():
     grid = list()
     f = open("grid.txt", "r")
@@ -20,8 +25,8 @@ def init_grid():
     f.close()
     return grid
 
-
-red_curve = [
+# define charts
+red_chart = [
     [0, 0],
     [0, 1],
     [0, 2],
@@ -53,7 +58,7 @@ red_curve = [
     [12, 16],
 ]
 
-yellow_curve = [
+yellow_chart = [
     [0, 0],
     [0, 1],
     [0, 2],
@@ -84,7 +89,7 @@ yellow_curve = [
     [11, 16],
 ]
 
-brown_curve = [
+brown_chart = [
     [0, 0],
     [1, 0],
     [2, 0],
@@ -115,7 +120,7 @@ brown_curve = [
     [15, 12],
 ]
 
-striped_curve = [
+striped_chart = [
     [0, 0],
     [1, 0],
     [2, 0],
@@ -146,176 +151,186 @@ striped_curve = [
     [15, 12],
 ]
 
-curves = {
-    "red": red_curve,
-    "yellow": yellow_curve,
-    "brown": brown_curve,
-    "striped": striped_curve,
+charts = {
+    "red": red_chart,
+    "yellow": yellow_chart,
+    "brown": brown_chart,
+    "striped": striped_chart,
 }
 
-
+# displays the puzzle area in its current state
 def draw_grid():
     for i in range(WIDTH):
         for j in range(HEIGHT):
             print(grid[i][j], end="")
         print()
 
-
-def fits(curve, x_start, y_start):
-    # print(x_start)
-    # print(y_start)
-    # print(curve)
-    for point in curve:
+# checks whether a chart fits in the puzzle area for a given starting point
+def fits(chart, x_start, y_start):
+    for point in chart:
         x = point[0] + x_start
         y = point[1] + y_start
-        # print(f"{x}-{y}")
         if x >= WIDTH or y >= HEIGHT:
             return False
         if grid[x][y] != ".":
             return False
     return True
 
-
-def put(curve, x_start, y_start, sign):
-    for point in curve:
+# updates the puzzle area, positionning a chart on it for a given starting point
+def put(chart, x_start, y_start, sign):
+    for point in chart:
         x = point[0] + x_start
         y = point[1] + y_start
         grid[x][y] = sign
 
-
-def delete(curve, x_start, y_start):
-    for point in curve:
+# removes a chart from the puzzle area, based on its starting point
+def delete(chart, x_start, y_start):
+    for point in chart:
         x = point[0] + x_start
         y = point[1] + y_start
         grid[x][y] = "."
 
 
-def flip_v(curve):
+# flips a chart vertically
+def flip_v(chart):
     result = list()
-    width = curve[len(curve) - 1][0]
-    for point in reversed(curve):
+    width = chart[len(chart) - 1][0]
+    for point in reversed(chart):
         result.append([width - point[0], point[1]])
     return result
 
-
-def flip_h(curve):
+# flips a chart horizontally
+def flip_h(chart):
     result = list()
-    height = curve[len(curve) - 1][1]
-    for point in reversed(curve):
+    height = chart[len(chart) - 1][1]
+    for point in reversed(chart):
         result.append([point[0], height - point[1]])
         # print([point[0], height - point[1]])
     return result
 
-
-def flip_v_and_h(curve):
+# flips a chart vertically and horizontally
+def flip_v_and_h(chart):
     result = list()
-    width = curve[len(curve) - 1][0]
-    height = curve[len(curve) - 1][1]
-    for point in curve:
+    width = chart[len(chart) - 1][0]
+    height = chart[len(chart) - 1][1]
+    for point in chart:
         result.append([width - point[0], height - point[1]])
     return result
 
-
-def flip(curve, flip_type):
+# flips a chart
+def flip(chart, flip_type):
     if flip_type == FLIP_V:
-        return flip_v(curve)
+        return flip_v(chart)
     if flip_type == FLIP_H:
-        return flip_h(curve)
+        return flip_h(chart)
     if flip_type == FLIP_V_AND_H:
-        return flip_v_and_h(curve)
+        return flip_v_and_h(chart)
     # no flip
-    return curve
+    return chart
 
 
-def get_width(curve):
-    begin = curve[0][0]
-    end = curve[len(curve) - 1][0]
+def get_width(chart):
+    begin = chart[0][0]
+    end = chart[len(chart) - 1][0]
     return max(begin, end)
 
 
-def get_height(curve):
-    begin = curve[0][1]
-    end = curve[len(curve) - 1][1]
+def get_height(chart):
+    begin = chart[0][1]
+    end = chart[len(chart) - 1][1]
     return max(begin, end)
 
-
-def get_possible_starts(curve):
+# returns a list of starting positions from where a chart can fit in the puzzle area
+def get_possible_starts(chart):
     possible_starts = list()
 
-    curve_width = get_width(curve)  # curve[len(curve) - 1][0]
-    curve_height = get_height(curve)  # curve[len(curve) - 1][1]
+    chart_width = get_width(chart) 
+    chart_height = get_height(chart) 
 
-    for i in range(WIDTH - curve_width):
-        for j in range(HEIGHT - curve_height):
-            if fits(curve, i, j):
+    for i in range(WIDTH - chart_width):
+        for j in range(HEIGHT - chart_height):
+            if fits(chart, i, j):
                 possible_starts.append([i, j])
 
-    # print("possible starts: ")
-    # print(possible_starts)
     return possible_starts
 
-
-def try_combination(curve_1, curve_2, curve_3, curve_4, c1, c2, c3, c4):
-    first_curve_starts = get_possible_starts(curve_1)
-    for start_1 in first_curve_starts:
-        put(curve_1, start_1[0], start_1[1], c1)
-        second_curve_starts = get_possible_starts(curve_2)
-        for start_2 in second_curve_starts:
-            put(curve_2, start_2[0], start_2[1], c2)
-            third_curve_starts = get_possible_starts(curve_3)
-            for start_3 in third_curve_starts:
-                put(curve_3, start_3[0], start_3[1], c3)
-                fourth_curve_starts = get_possible_starts(curve_4)
-                if len(fourth_curve_starts) > 0:
-                    for start_4 in fourth_curve_starts:
-                        put(curve_4, start_4[0], start_4[1], c4)
+# Successively tries positioning for a combination of the four charts on all their possible positions until a solution fits for the 3 charts
+# A combination of charts is defined by :
+#    - the order of addition of the charts in the puzzle area
+#    - the flip type of each chart (riginal, flip_vertical, flip_horizontal, flip_vertical_and_horizontal)
+def try_combination(chart_1, chart_2, chart_3, chart_4, color1, color2, color3, color4):
+    global nb_positioning_1, nb_positioning_2, nb_positioning_3, nb_positioning_4
+    # Gets the list of possible start positions for the 1st chart and try them all:
+    first_chart_starts = get_possible_starts(chart_1)
+    for start_1 in first_chart_starts:
+        nb_positioning_1 += 1
+        put(chart_1, start_1[0], start_1[1], color1)
+        # Gets the list of possible start positions for the 2nd chart and try them all:
+        second_chart_starts = get_possible_starts(chart_2)
+        for start_2 in second_chart_starts:
+            nb_positioning_2 += 1
+            put(chart_2, start_2[0], start_2[1], color2)
+            # Gets the list of possible start positions for the 3rd chart and try them all:
+            third_chart_starts = get_possible_starts(chart_3)
+            for start_3 in third_chart_starts:
+                nb_positioning_3 += 1
+                put(chart_3, start_3[0], start_3[1], color3)
+                # Gets the list of possible start positions for the 4th chart and try them all:
+                fourth_chart_starts = get_possible_starts(chart_4)
+                if len(fourth_chart_starts) > 0:
+                    for start_4 in fourth_chart_starts:
+                        nb_positioning_4 += 1
+                        put(chart_4, start_4[0], start_4[1], color4)
                         print("SUCCESS !!!")
                         draw_grid()
-                delete(curve_3, start_3[0], start_3[1])
-            delete(curve_2, start_2[0], start_2[1])
-        delete(curve_1, start_1[0], start_1[1])
+                delete(chart_3, start_3[0], start_3[1])
+            delete(chart_2, start_2[0], start_2[1])
+        delete(chart_1, start_1[0], start_1[1])
 
-
+# tries positioning all combinations for the charts (order and flip mode)
 def brute_force():
     nb_tries = 0
 
-    for a in range(len(curves)):
-        key_a = list(curves.keys())[a]
+    for a in range(len(charts)):
+        key_a = list(charts.keys())[a]
         for flip_a in range(4):
-            curve_a = flip(curves.get(key_a), flip_a)
-            for b in range(len(curves)):
+            chart_a = flip(charts.get(key_a), flip_a)
+            for b in range(len(charts)):
                 if b != a:
-                    key_b = list(curves.keys())[b]
+                    key_b = list(charts.keys())[b]
                     for flip_b in range(4):
-                        curve_b = flip(curves.get(key_b), flip_b)
-                        for c in range(len(curves)):
+                        chart_b = flip(charts.get(key_b), flip_b)
+                        for c in range(len(charts)):
                             if c != a and c != b:
-                                key_c = list(curves.keys())[c]
+                                key_c = list(charts.keys())[c]
                                 for flip_c in range(4):
-                                    curve_c = flip(curves.get(key_c), flip_c)
-                                    for d in range(len(curves)):
+                                    chart_c = flip(charts.get(key_c), flip_c)
+                                    for d in range(len(charts)):
                                         if d != a and d != b and d != c:
-                                            key_d = list(curves.keys())[d]
+                                            key_d = list(charts.keys())[d]
                                             for flip_d in range(4):
-                                                curve_d = flip(
-                                                    curves.get(key_d), flip_d
+                                                chart_d = flip(
+                                                    charts.get(key_d), flip_d
                                                 )
-                                                # print(
-                                                #     f"{key_a} {key_b} {key_c} {key_d} "
-                                                # )
+                                                
                                                 try_combination(
-                                                    curve_a,
-                                                    curve_b,
-                                                    curve_c,
-                                                    curve_d,
+                                                    chart_a,
+                                                    chart_b,
+                                                    chart_c,
+                                                    chart_d,
                                                     key_a[0],
                                                     key_b[0],
                                                     key_c[0],
                                                     key_d[0],
                                                 )
+                                                
                                                 nb_tries += 1
 
-    print(nb_tries)
+    print(f"tested the {nb_tries} possible combinations")
+    print(f"tried {nb_positioning_1} positions for the first chart")
+    print(f"tried {nb_positioning_2} positions for the second chart")
+    print(f"tried {nb_positioning_3} positions for the third chart")
+    print(f"tried {nb_positioning_4} positions for the fourth chart")
 
 
 grid = init_grid()
@@ -324,8 +339,8 @@ brute_force()
 
 def test():
     grid = init_grid()
-    put(flip_v_and_h(striped_curve), 0, 6, "s")
-    put(yellow_curve, 1, 0, "y")
-    put(red_curve, 5, 2, "r")
-    put(brown_curve, 3, 0, "b")
+    put(flip_v_and_h(striped_chart), 0, 6, "s")
+    put(yellow_chart, 1, 0, "y")
+    put(red_chart, 5, 2, "r")
+    put(brown_chart, 3, 0, "b")
     draw_grid()
