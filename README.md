@@ -61,10 +61,11 @@ follows:
 #########..........
 #########..........
 ##########.........
-`
+
 
 # = unavailable space
 . = available space
+`
 
 [The algorithm](nifty.py) consists in bruteforcing all the possible
 combinations until the 4 charts fit in the area.
