@@ -41,7 +41,7 @@ The available space is represented as a 2 dimensional
 array stored in the [grid.txt text file](grid.txt), as 
 follows:
 
-`
+```
 .......############
 ........###########
 ........###########
@@ -65,7 +65,7 @@ follows:
 
 # = unavailable space
 . = available space
-`
+```
 
 [The algorithm](nifty.py) consists in bruteforcing all the possible
 combinations until the 4 charts fit in the area.
