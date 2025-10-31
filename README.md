@@ -25,7 +25,7 @@ A square irepresents a (x,y) unit
 
 ![graphical representation of the model](model.jpg)
 
-## Implementation 
+## Model design
 
 The charts are represented as a series of their points 
 in a 2 dimensional array variable.
@@ -67,7 +67,40 @@ follows:
 . = available space
 ```
 
+## Implementation 
+
 [The algorithm](nifty.py) consists in bruteforcing all the possible
 combinations until the 4 charts fit in the area.
 
+### Chart arrangement
+
+Each chart can be arranged in 4 different ways :
+
+- initial
+- flipped horizontally
+- flipped vertically
+- flipped both horizontally and vertically
+
+There are 256 (4^4) possible arrangements.
+
+### Positionning order 
+
+Each try implies a given order, in other words which chart is postionned 1st, 2nd,  3rd and 4th.
+
+There are 24 (4!) possible orderings.
+
+### Combinations
+
+A combination is a set of charts with specific arrangements and order.
+
+All permutations of combinations need to be tested. 
+
+There are 6144 (24x256) possible combinations.
+
+### Resolution
+
+- For each valid position of the 1st chart
+  - For each valid position of the 2nd chart (given a selected position of the 1st chart)
+    - For each valid position of the 3nd chart (given the selected positions of the previous charts)
+      - If a valid position exists for the 4th chart (given the selected positions of the previous charts) , then the puzzle is solved !
 
